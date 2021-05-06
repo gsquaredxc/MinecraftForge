@@ -27,6 +27,8 @@ import org.apache.logging.log4j.core.helpers.Integers;
 import java.io.IOException;
 import java.util.List;
 
+import static net.minecraftforge.fml.common.network.internal.FMLNetworkHandler.intOrDefault;
+
 public class FMLProxyPacket implements Packet<INetHandler> {
     final String channel;
     private Side target;
@@ -34,7 +36,7 @@ public class FMLProxyPacket implements Packet<INetHandler> {
     private INetHandler netHandler;
     private NetworkDispatcher dispatcher;
     private static final Multiset<String> badPackets = ConcurrentHashMultiset.create();
-    private static final int packetCountWarning = Integers.parseInt(System.getProperty("fml.badPacketCounter", "100"), 100);
+    private static final int packetCountWarning = intOrDefault(System.getProperty("fml.badPacketCounter", "100"), 100);
 
     public FMLProxyPacket(S3FPacketCustomPayload original) {
         this(original.getBufferData(), original.getChannelName());

@@ -1,6 +1,7 @@
 package net.minecraftforge.fml.common.registry;
 
 import com.google.common.base.Throwables;
+import dev.xdark.deencapsulation.Deencapsulation;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -8,10 +9,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import org.apache.logging.log4j.Level;
+import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 
 /**
@@ -24,6 +24,8 @@ class ObjectHolderRef {
     private final ResourceLocation injectedObject;
     private boolean isBlock;
     private boolean isItem;
+
+    private static Unsafe unsafe;
 
 
     ObjectHolderRef(Field field, ResourceLocation injectedObject, boolean extractFromExistingValues) {
@@ -54,28 +56,6 @@ class ObjectHolderRef {
         if (this.injectedObject == null || !isValid()) {
             throw new IllegalStateException(String.format("The ObjectHolder annotation cannot apply to a field that is not an Item or Block (found : %s at %s.%s)", field.getType().getName(), field.getClass().getName(), field.getName()));
         }
-        makeWritable(field);
-    }
-
-    private static Field modifiersField;
-    private static Object reflectionFactory;
-    private static Method newFieldAccessor;
-    private static Method fieldAccessorSet;
-
-    private static void makeWritable(Field f) {
-        try {
-            if (modifiersField == null) {
-                Method getReflectionFactory = Class.forName("sun.reflect.ReflectionFactory").getDeclaredMethod("getReflectionFactory");
-                reflectionFactory = getReflectionFactory.invoke(null);
-                newFieldAccessor = Class.forName("sun.reflect.ReflectionFactory").getDeclaredMethod("newFieldAccessor", Field.class, boolean.class);
-                fieldAccessorSet = Class.forName("sun.reflect.FieldAccessor").getDeclaredMethod("set", Object.class, Object.class);
-                modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-            }
-            modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
     }
 
     public boolean isValid() {
@@ -100,10 +80,21 @@ class ObjectHolderRef {
             return;
         }
         try {
-            Object fieldAccessor = newFieldAccessor.invoke(reflectionFactory, field, false);
-            fieldAccessorSet.invoke(fieldAccessor, null, thing);
+            Object base = unsafe.staticFieldBase(field);
+            long offset = unsafe.staticFieldOffset(field);
+            unsafe.putObject(base, offset, thing);
         } catch (Exception e) {
             FMLLog.log(Level.WARN, e, "Unable to set %s with value %s (%s)", this.field, thing, this.injectedObject);
+        }
+    }
+
+    static {
+        try {
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            unsafe = (Unsafe) unsafeField.get(null);
+        } catch (Exception e) {
+            Throwables.propagate(e);
         }
     }
 }

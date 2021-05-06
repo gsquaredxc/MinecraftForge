@@ -10,6 +10,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import io.pack200.Pack200;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
 import net.minecraftforge.fml.relauncher.Side;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
 import java.util.regex.Pattern;
 
 public class ClassPatchManager {

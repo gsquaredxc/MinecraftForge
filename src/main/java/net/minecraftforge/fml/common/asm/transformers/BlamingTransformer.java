@@ -3,17 +3,12 @@ package net.minecraftforge.fml.common.asm.transformers;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.FMLLog;
-import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.SystemUtils;
+import net.minecraftforge.utils.JavaUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class BlamingTransformer implements IClassTransformer {
     private static final Map<String, String> classMap = new HashMap<>();
@@ -46,8 +41,7 @@ public class BlamingTransformer implements IClassTransformer {
 
         @Override
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-            if ((version == Opcodes.V1_8 && !SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) ||
-                (version == Opcodes.V1_7 && !SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_7))) {
+            if (version == Opcodes.V1_8 && !JavaUtils.INSTANCE.isJava8() || version == Opcodes.V1_7 && !JavaUtils.INSTANCE.isJava7()) {
                 if (classMap.containsKey(name)) blame(classMap.get(name), name);
                 else orphanNaughtyClasses.add(name);
             }

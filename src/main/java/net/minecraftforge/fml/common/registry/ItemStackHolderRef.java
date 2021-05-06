@@ -1,9 +1,12 @@
 package net.minecraftforge.fml.common.registry;
 
 import com.google.common.base.Throwables;
+import dev.xdark.deencapsulation.Deencapsulation;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.utils.JavaUtils;
 import org.apache.logging.log4j.Level;
+import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -21,34 +24,13 @@ class ItemStackHolderRef {
     private final int meta;
     private final String serializednbt;
 
+    private static Unsafe unsafe;
 
     ItemStackHolderRef(Field field, String itemName, int meta, String serializednbt) {
         this.field = field;
         this.itemName = itemName;
         this.meta = meta;
         this.serializednbt = serializednbt;
-        makeWritable(field);
-    }
-
-    private static Field modifiersField;
-    private static Object reflectionFactory;
-    private static Method newFieldAccessor;
-    private static Method fieldAccessorSet;
-
-    private static void makeWritable(Field f) {
-        try {
-            if (modifiersField == null) {
-                Method getReflectionFactory = Class.forName("sun.reflect.ReflectionFactory").getDeclaredMethod("getReflectionFactory");
-                reflectionFactory = getReflectionFactory.invoke(null);
-                newFieldAccessor = Class.forName("sun.reflect.ReflectionFactory").getDeclaredMethod("newFieldAccessor", Field.class, boolean.class);
-                fieldAccessorSet = Class.forName("sun.reflect.FieldAccessor").getDeclaredMethod("set", Object.class, Object.class);
-                modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-            }
-            modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
     }
 
     public void apply() {
@@ -60,10 +42,21 @@ class ItemStackHolderRef {
             throw e;
         }
         try {
-            Object fieldAccessor = newFieldAccessor.invoke(reflectionFactory, field, false);
-            fieldAccessorSet.invoke(fieldAccessor, null, is);
+            Object base = unsafe.staticFieldBase(field);
+            long offset = unsafe.staticFieldOffset(field);
+            unsafe.putObject(base, offset, is);
         } catch (Exception e) {
             FMLLog.getLogger().log(Level.WARN, "Unable to set {} with value {},{},{}", this.field, this.itemName, this.meta, this.serializednbt);
+        }
+    }
+
+    static {
+        try {
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            unsafe = (Unsafe) unsafeField.get(null);
+        } catch (Exception e) {
+            Throwables.propagate(e);
         }
     }
 }
