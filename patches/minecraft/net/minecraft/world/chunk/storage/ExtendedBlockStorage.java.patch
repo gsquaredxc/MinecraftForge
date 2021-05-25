@@ -1,6 +1,22 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
-@@ -34,6 +34,8 @@
+@@ -13,11 +13,14 @@
+     private char[] field_177488_d;
+     private NibbleArray field_76679_g;
+     private NibbleArray field_76685_h;
++    private boolean charArrayNull = true;
+ 
++    private final static char[] sharedNullArr = new char[4096];
++
+     public ExtendedBlockStorage(int p_i1997_1_, boolean p_i1997_2_)
+     {
+         this.field_76684_a = p_i1997_1_;
+-        this.field_177488_d = new char[4096];
++        this.field_177488_d = sharedNullArr;
+         this.field_76679_g = new NibbleArray();
+ 
+         if (p_i1997_2_)
+@@ -34,6 +37,8 @@
  
      public void func_177484_a(int p_177484_1_, int p_177484_2_, int p_177484_3_, IBlockState p_177484_4_)
      {
@@ -9,3 +25,29 @@
          IBlockState iblockstate = this.func_177485_a(p_177484_1_, p_177484_2_, p_177484_3_);
          Block block = iblockstate.func_177230_c();
          Block block1 = p_177484_4_.func_177230_c();
+@@ -141,9 +146,25 @@
+ 
+     public void func_177486_a(char[] p_177486_1_)
+     {
++        allocateIfNot();
+         this.field_177488_d = p_177486_1_;
+     }
+ 
++    public void allocateOwnCharArr(){
++        charArrayNull = false;
++        this.field_177488_d = new char[4096];
++    }
++
++    public boolean isAllocated(){
++        return charArrayNull;
++    }
++
++    public void allocateIfNot(){
++        if (charArrayNull){
++            allocateOwnCharArr();
++        }
++    }
++
+     public NibbleArray func_76661_k()
+     {
+         return this.field_76679_g;
