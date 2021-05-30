@@ -1,16 +1,12 @@
 package net.minecraftforge.fml.common.registry;
 
 import com.google.common.base.Throwables;
-import dev.xdark.deencapsulation.Deencapsulation;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.utils.JavaUtils;
 import org.apache.logging.log4j.Level;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 
 /**

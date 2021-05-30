@@ -44,6 +44,8 @@ public class ClassReaderTransformer implements ForgeTransformer {
 
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             classNode.accept(writer);
+
+            return writer.toByteArray();
         }
 
         return bytes;

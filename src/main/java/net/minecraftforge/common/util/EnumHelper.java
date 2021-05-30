@@ -115,12 +115,6 @@ public class EnumHelper {
             return;
         }
 
-        try {
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         isSetup = true;
     }
 

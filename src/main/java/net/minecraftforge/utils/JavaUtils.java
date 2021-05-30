@@ -1,6 +1,6 @@
 package net.minecraftforge.utils;
 
-import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.launch.ForgeLaunchWrapper;
 
 import java.net.URLClassLoader;
 
@@ -13,7 +13,7 @@ public class JavaUtils {
      * @return Whether the current JRE is Java 8/Whatever extended URLClassLoader
      */
     public boolean isJava8() {
-        return Launch.class.getClassLoader() instanceof URLClassLoader;
+        return ForgeLaunchWrapper.class.getClassLoader() instanceof URLClassLoader;
     }
 
     public boolean isJava7() {

@@ -49,7 +49,7 @@ public class JarDiscoverer implements ITypeDiscoverer {
                 mc = MetadataCollection.from(null, "");
             }
             for (ZipEntry ze : Collections.list(jar.entries())) {
-                if (ze.getName() != null && ze.getName().startsWith("__MACOSX")) {
+                if (ze.getName().startsWith("__MACOSX") || ze.getName().startsWith("META-INF/versions/")) {
                     continue;
                 }
                 Matcher match = classFile.matcher(ze.getName());

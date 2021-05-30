@@ -41,10 +41,11 @@ public class BlamingTransformer implements IClassTransformer {
 
         @Override
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-            if (version == Opcodes.V1_8 && !JavaUtils.INSTANCE.isJava8() || version == Opcodes.V1_7 && !JavaUtils.INSTANCE.isJava7()) {
-                if (classMap.containsKey(name)) blame(classMap.get(name), name);
-                else orphanNaughtyClasses.add(name);
-            }
+            // Obviously this causes problems with later versions so let's keep it out for now
+//            if (version == Opcodes.V1_8 && !JavaUtils.INSTANCE.isJava8() || version == Opcodes.V1_7 && !JavaUtils.INSTANCE.isJava7()) {
+//                if (classMap.containsKey(name)) blame(classMap.get(name), name);
+//                else orphanNaughtyClasses.add(name);
+//            }
         }
     }
 

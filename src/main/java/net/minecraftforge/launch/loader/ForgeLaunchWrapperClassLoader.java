@@ -1,12 +1,8 @@
 package net.minecraftforge.launch.loader;
 
-import com.google.common.collect.ArrayListMultimap;
-import cpw.mods.gross.Java9ClassLoaderUtil;
 import net.minecraft.launchwrapper.LogWrapper;
-import net.minecraftforge.launch.ForgeLaunchWrapper;
+import net.minecraft.launchwrapper.utils.Classpath;
 import net.minecraftforge.launch.loader.transformer.ForgeTransformer;
-import net.minecraftforge.patching.ClassReaderTransformer;
-import net.minecraftforge.patching.MixinServiceLaunchWrapperTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,20 +29,15 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
     private static final List<ForgeTransformer> transformers = new ArrayList<>();
 
     public ForgeLaunchWrapperClassLoader() {
-        super(Java9ClassLoaderUtil.getSystemClassPathURLs(), null);
+        super(Classpath.getClasspath(), null);
 
         addClassLoaderExclusion("sun.");
         addClassLoaderExclusion("java.");
         addClassLoaderExclusion("javax.");
         addClassLoaderExclusion("com.sun.");
-        addClassLoaderExclusion(getClass().getName());
-        addClassLoaderExclusion("org.lwjgl.");
-//        addClassLoaderExclusion("org.objectweb.asm.");
-//        addClassLoaderExclusion(ForgeTransformer.class.getName());
-        addClassLoaderExclusion(ForgeLaunchWrapper.class.getName());
 
-        addTransformer(new MixinServiceLaunchWrapperTransformer());
-        addTransformer(new ClassReaderTransformer());
+        addClassLoaderExclusion("net.minecraftforge.launch.");
+        addClassLoaderExclusion("org.lwjgl.");
     }
 
     @Override
@@ -142,13 +133,23 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
             }
         }
 
-        return urlConnection == null ? null : new CodeSource(fixJarURL(urlConnection.getURL()), signers);
+        return urlConnection == null ? null : new CodeSource(fixJarURL(urlConnection instanceof JarURLConnection ? ((JarURLConnection) urlConnection).getJarFileURL() : urlConnection.getURL(), name), signers);
     }
 
-    private URL fixJarURL(URL url) throws MalformedURLException {
+    private URL fixJarURL(URL url, String className) throws MalformedURLException {
         String toString = url.toString();
 
-        return toString.startsWith("jar:") ? new URL(toString.substring(4)) : url;
+        if (toString.startsWith("jar:")) {
+            new URL(toString.substring(4));
+        }
+
+        String classNamePath = "/".concat(className.replace(".", "/")).concat(".class");
+
+        if (toString.endsWith(classNamePath)) {
+            return new URL(toString.substring(0, toString.length() - classNamePath.length()));
+        }
+
+        return url;
     }
 
     private URLConnection findCodeSourceConnectionFor(String name) {
@@ -180,5 +181,21 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
         }
 
         return null;
+    }
+
+    /**
+     * Oh Forge, how you are full of hacks! Even to maintain you, we must hack it together...
+     * This fix was one I didn't really want to make because it's super messy, but here we are
+     * <p>
+     * This classloader needs to apply these patches as early as possible, to do this we must manually load the classes
+     * and then add them as a transformer, so that they are not loaded under the AppClassLoader, causing incompatibilities.
+     */
+    public void addDefaultTransformers() throws Exception {
+        Class<?> mixinServiceLaunchWrapperTransformer = Class.forName("net.minecraftforge.patching.MixinServiceLaunchWrapperTransformer", true, this);
+        Class<?> invokeDynamicTransformer = Class.forName("net.minecraftforge.patching.InvokeDynamicTransformer", true, this);
+        Class<?> classReaderTransformer = Class.forName("net.minecraftforge.patching.ClassReaderTransformer", true, this);
+        addTransformer((ForgeTransformer) mixinServiceLaunchWrapperTransformer.newInstance());
+        addTransformer((ForgeTransformer) invokeDynamicTransformer.newInstance());
+        addTransformer((ForgeTransformer) classReaderTransformer.newInstance());
     }
 }

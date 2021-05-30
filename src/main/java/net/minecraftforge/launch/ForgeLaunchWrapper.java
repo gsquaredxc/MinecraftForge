@@ -32,12 +32,13 @@ public class ForgeLaunchWrapper {
         classLoader = new ForgeLaunchWrapperClassLoader();
 
         try {
+            classLoader.addDefaultTransformers();
             Thread.currentThread().setContextClassLoader(classLoader);
-            Class<?> clazz = Class.forName(mainClass, true, classLoader);
 
+            Class<?> clazz = Class.forName(mainClass, true, classLoader);
             Method entrypointMethod = clazz.getDeclaredMethod("main", String[].class);
             entrypointMethod.invoke(null, new Object[]{arguments.toArray(new String[0])});
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             LOGGER.error("An error occurred when attempting to launch", e);
         }
     }
