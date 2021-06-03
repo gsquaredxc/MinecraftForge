@@ -20,8 +20,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
-    private final Logger LOGGER = LogManager.getLogger(this);
-
     private final ClassLoader parent = getClass().getClassLoader();
 
     private static final List<String> exclusions = new ArrayList<>();
@@ -29,15 +27,34 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
     private static final List<ForgeTransformer> transformers = new ArrayList<>();
 
     public ForgeLaunchWrapperClassLoader() {
-        super(Classpath.getClasspath(), null);
+        super(Classpath.getClasspath(), getSystemClassLoader());
 
         addClassLoaderExclusion("sun.");
         addClassLoaderExclusion("java.");
         addClassLoaderExclusion("javax.");
         addClassLoaderExclusion("com.sun.");
+        addClassLoaderExclusion("jdk.internal.");
 
         addClassLoaderExclusion("net.minecraftforge.launch.");
+        addClassLoaderExclusion("org.apache.logging.");
         addClassLoaderExclusion("org.lwjgl.");
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> c = findLoadedClass(name);
+
+            if (c != null) {
+                return c;
+            }
+
+            try {
+                return findClass(name);
+            } catch (ClassNotFoundException ignored) {
+                return super.loadClass(name, resolve);
+            }
+        }
     }
 
     @Override
