@@ -3,7 +3,7 @@ package net.minecraftforge.utils;
 public class JavaUtils {
     public static JavaUtils INSTANCE = new JavaUtils();
 
-    private final String javaVersion = System.getProperty("java.version", "1.8.0_52");
+    private final String javaVersion = System.getProperty("java.version");
 
     /**
      * Logic: In Java 9+ AppClassLoader is no longer extends URLClassLoader meaning we can check if the version by seeing if it still extends it or not
