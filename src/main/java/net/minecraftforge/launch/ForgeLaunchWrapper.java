@@ -13,23 +13,27 @@ import java.util.List;
 public class ForgeLaunchWrapper {
     private static final Logger LOGGER = LogManager.getLogger(ForgeLaunchWrapper.class);
 
-    private static ForgeLaunchWrapperClassLoader classLoader;
+    private static final ForgeLaunchWrapperClassLoader classLoader = new ForgeLaunchWrapperClassLoader();
+    ;
 
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         List<String> arguments = new ArrayList<>(Arrays.asList(args));
 
-        int mainClassIndex = arguments.indexOf("--main_class") + 1;
+        String mainClass;
 
-        if ((mainClassIndex - 1) == -1) {
-            throw new IllegalStateException("No launch target has been specified. (Use --main_class argument)");
+        int mainClassIndex = arguments.indexOf("--main_class");
+
+        if (mainClassIndex != -1) {
+            mainClass = arguments.get(mainClassIndex + 1);
+            arguments.remove("--main_class");
+            arguments.remove(mainClass);
+        } else {
+            mainClass = isDevelopment() ? "GradleStart" : "net.minecraft.launchwrapper.Launch";
         }
 
-        String mainClass = arguments.get(mainClassIndex);
-
-        arguments.remove("--main_class");
-        arguments.remove(mainClass);
-
-        classLoader = new ForgeLaunchWrapperClassLoader();
+        if (isDevelopment()) {
+            System.setProperty("mixin.env.remapRefMap", "true"); // Fix mixin remapping issues
+        }
 
         try {
             classLoader.addDefaultTransformers();
@@ -45,5 +49,14 @@ public class ForgeLaunchWrapper {
 
     public static ForgeLaunchWrapperClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public static boolean isDevelopment() {
+        try {
+            Class.forName("net.minecraft.client.Minecraft", false, classLoader);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }

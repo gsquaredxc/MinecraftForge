@@ -157,7 +157,7 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
         String toString = url.toString();
 
         if (toString.startsWith("jar:")) {
-            new URL(toString.substring(4));
+            return new URL(toString.substring(4));
         }
 
         String classNamePath = "/".concat(className.replace(".", "/")).concat(".class");
