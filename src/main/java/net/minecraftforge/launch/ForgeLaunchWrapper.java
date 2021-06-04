@@ -14,7 +14,10 @@ public class ForgeLaunchWrapper {
     private static final Logger LOGGER = LogManager.getLogger(ForgeLaunchWrapper.class);
 
     private static final ForgeLaunchWrapperClassLoader classLoader = new ForgeLaunchWrapperClassLoader();
-    ;
+
+    private static boolean isDevelopmentEnvironment;
+
+    private static boolean hasDevelopmentCheckRan;
 
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         List<String> arguments = new ArrayList<>(Arrays.asList(args));
@@ -52,11 +55,17 @@ public class ForgeLaunchWrapper {
     }
 
     public static boolean isDevelopment() {
-        try {
-            Class.forName("net.minecraft.client.Minecraft", false, classLoader);
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
+        if (!hasDevelopmentCheckRan) {
+            try {
+                Class.forName("net.minecraft.client.Minecraft", false, classLoader);
+                hasDevelopmentCheckRan = true;
+                isDevelopmentEnvironment = true;
+            } catch (ClassNotFoundException e) {
+                hasDevelopmentCheckRan = true;
+                isDevelopmentEnvironment = false;
+            }
         }
+
+        return isDevelopmentEnvironment;
     }
 }
