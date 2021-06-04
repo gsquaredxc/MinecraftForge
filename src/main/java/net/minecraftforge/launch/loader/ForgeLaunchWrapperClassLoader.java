@@ -113,7 +113,6 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
      */
     private CodeSource getCodeSource(String name) throws IOException {
         final int lastDot = name.lastIndexOf('.');
-        final String packageName = lastDot == -1 ? "" : name.substring(0, lastDot);
         final String fileName = name.replace('.', '/').concat(".class");
         URLConnection urlConnection = findCodeSourceConnectionFor(fileName);
 
@@ -125,27 +124,11 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
                 final JarFile jarFile = jarURLConnection.getJarFile();
 
                 if (jarFile != null && jarFile.getManifest() != null) {
-                    final Manifest manifest = jarFile.getManifest();
                     final JarEntry entry = jarFile.getJarEntry(fileName);
 
                     if (entry != null) {
-                        Package pkg = getPackage(packageName);
                         signers = entry.getCodeSigners();
-                        if (pkg == null) {
-                            pkg = definePackage(packageName, manifest, jarURLConnection.getJarFileURL());
-                        } else {
-                            if (pkg.isSealed() && !pkg.isSealed(jarURLConnection.getJarFileURL())) {
-                                LogWrapper.severe("The jar file %s is trying to seal already secured path %s", jarFile.getName(), packageName);
-                            }
-                        }
                     }
-                }
-            } else {
-                Package pkg = getPackage(packageName);
-                if (pkg == null) {
-                    pkg = definePackage(packageName, null, null, null, null, null, null, null);
-                } else if (pkg.isSealed()) {
-                    LogWrapper.severe("The URL %s is defining elements for sealed path %s", Objects.requireNonNull(urlConnection).getURL(), packageName);
                 }
             }
         }
