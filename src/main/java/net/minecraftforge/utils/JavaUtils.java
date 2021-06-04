@@ -11,4 +11,8 @@ public class JavaUtils {
     public boolean isJava7() {
         return javaVersion.startsWith("1.7");
     }
+
+    public boolean isJava16() {
+        return javaVersion.startsWith("16");
+    }
 }
