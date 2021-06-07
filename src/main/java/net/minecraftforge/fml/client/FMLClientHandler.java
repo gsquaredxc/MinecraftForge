@@ -243,12 +243,16 @@ public class FMLClientHandler implements IFMLSidedHandler {
         throw Throwables.propagate(t);
     }
 
+    public boolean hasError() {
+        return modsMissing != null || wrongMC != null || customError != null || dupesFound != null || modSorting != null;
+    }
+
     /**
      * Called a bit later on during initialization to finish loading mods
      * Also initializes key bindings
      */
     public void finishMinecraftLoading() {
-        if (modsMissing != null || wrongMC != null || customError != null || dupesFound != null || modSorting != null) {
+        if (hasError()) {
             SplashProgress.finish();
             return;
         }

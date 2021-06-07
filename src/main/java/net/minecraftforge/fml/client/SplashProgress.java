@@ -292,7 +292,7 @@ public class SplashProgress {
                     angle += 1;
 
                     // forge logo
-                    setColor(backgroundColor);
+                    glColor4f(1, 1, 1, 1);
                     float fw = (float)forgeTexture.getWidth() / 2;
                     float fh = (float)forgeTexture.getHeight() / 2;
                     if (rotate) {

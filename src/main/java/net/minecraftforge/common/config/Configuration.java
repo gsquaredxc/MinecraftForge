@@ -1215,9 +1215,11 @@ public class Configuration {
      */
     public boolean renameProperty(String category, String oldPropName, String newPropName) {
         if (hasCategory(category)) {
-            if (getCategory(category).containsKey(oldPropName) && !oldPropName.equalsIgnoreCase(newPropName)) {
-                get(category, newPropName, getCategory(category).get(oldPropName).getString(), "");
-                getCategory(category).remove(oldPropName);
+            ConfigCategory cat = getCategory(category);
+            if (cat.containsKey(oldPropName) && !oldPropName.equalsIgnoreCase(newPropName)) {
+                Property prop = cat.remove(oldPropName);
+                prop.setName(newPropName);
+                cat.put(newPropName, prop);
                 return true;
             }
         }
