@@ -46,6 +46,7 @@ import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -215,16 +216,18 @@ public class FMLModContainer implements ModContainer {
                 ZipEntry versionFile = source.getEntry("version.properties");
                 if (versionFile != null) {
                     version = new Properties();
-                    version.load(source.getInputStream(versionFile));
+                    try (InputStream sourceInputStream = source.getInputStream(versionFile)) {
+                        version.load(sourceInputStream);
+                    }
                 }
                 source.close();
             } else if (getSource().isDirectory()) {
                 File propsFile = new File(getSource(), "version.properties");
                 if (propsFile.exists() && propsFile.isFile()) {
                     version = new Properties();
-                    FileInputStream fis = new FileInputStream(propsFile);
-                    version.load(fis);
-                    fis.close();
+                    try (FileInputStream fis = new FileInputStream(propsFile)) {
+                        version.load(fis);
+                    }
                 }
             }
             return version;

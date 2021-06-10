@@ -11,6 +11,10 @@
       "url": "https://jitpack.io/"
     },
     {
+      "name": "org.jetbrains.kotlin:kotlin-stdlib:1.5.0",
+      "url": "https://repo.maven.apache.org/maven2"
+    },
+    {
       "name": "jline:jline:2.13",
       "children": ["sources"],
       "url" : "https://repo.maven.apache.org/maven2"
@@ -85,7 +89,7 @@
       "url": "https://repo.maven.apache.org/maven2"
     },
     {
-      "name": "com.github.ChachyDev:keventbus-forge:dd8d578136",
+      "name": "club.chachy:keventbus-forge:e8b637b868",
       "url": "https://jitpack.io/"
     },
     {

@@ -75,6 +75,8 @@ public class ModelDynBucket implements IModel, IModelCustomData<ModelDynBucket>,
             builder.add(liquidLocation);
         if (coverLocation != null)
             builder.add(coverLocation);
+        if (fluid != null)
+            builder.add(fluid.getStill());
 
         return builder.build();
     }

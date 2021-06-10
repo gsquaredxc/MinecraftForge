@@ -189,6 +189,11 @@ public class FMLServerHandler implements IFMLSidedHandler {
     }
 
     @Override
+    public boolean isDisplayCloseRequested() {
+        return false;
+    }
+
+    @Override
     public boolean shouldServerShouldBeKilledQuietly() {
         return false;
     }

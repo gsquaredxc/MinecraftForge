@@ -12,7 +12,7 @@ buildscript {
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        classpath 'com.github.asbyth:ForgeGradle:8f14deb507'
+        classpath 'com.github.asbyth:ForgeGradle:ae9295e167'
     }
 }
 

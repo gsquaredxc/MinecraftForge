@@ -26,7 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.security.cert.Certificate;
@@ -78,20 +78,19 @@ public class FMLSanityChecker implements IFMLCallHook {
             // Probably a development environment, or the server (the server is not signed)
             goodMC = true;
         }
-        JarFile mcJarFile = null;
         if (fmlIsJar && !goodMC && codeSource.getLocation().getProtocol().equals("jar")) {
-            try {
-                String mcPath = codeSource.getLocation().getPath().substring(5);
-                mcPath = mcPath.substring(0, mcPath.lastIndexOf('!'));
-                mcPath = URLDecoder.decode(mcPath, Charsets.UTF_8.name());
-                mcJarFile = new JarFile(mcPath, true);
+            String mcPath = codeSource.getLocation().getPath().substring(5);
+            mcPath = mcPath.substring(0, mcPath.lastIndexOf('!'));
+            mcPath = URLDecoder.decode(mcPath, Charsets.UTF_8.name());
+            try (JarFile mcJarFile = new JarFile(mcPath, true)){
                 mcJarFile.getManifest();
                 JarEntry cbrEntry = mcJarFile.getJarEntry("net/minecraft/client/ClientBrandRetriever.class");
-                ByteStreams.toByteArray(mcJarFile.getInputStream(cbrEntry));
+                try (InputStream mcJarFileInputStream = mcJarFile.getInputStream(cbrEntry)) {
+                    ByteStreams.toByteArray(mcJarFileInputStream);
+                }
                 Certificate[] certificates = cbrEntry.getCertificates();
                 certCount = certificates != null ? certificates.length : 0;
                 if (certificates != null) {
-
                     for (Certificate cert : certificates) {
                         String fingerprint = CertificateHelper.getFingerprint(cert);
                         if (fingerprint.equals(MCFINGERPRINT)) {
@@ -102,14 +101,6 @@ public class FMLSanityChecker implements IFMLCallHook {
                 }
             } catch (Throwable e) {
                 FMLRelaunchLog.log(Level.ERROR, e, "A critical error occurred trying to read the minecraft jar file");
-            } finally {
-                if (mcJarFile != null) {
-                    try {
-                        mcJarFile.close();
-                    } catch (IOException ioe) {
-                        // Noise
-                    }
-                }
             }
         } else {
             goodMC = true;

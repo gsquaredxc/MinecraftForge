@@ -31,7 +31,11 @@ public abstract class QuadGatheringTransformer implements IVertexConsumer {
         if (element == getVertexFormat().getElementCount() - 1) vertices++;
         if (vertices == 0) {
             dataLength[element] = (byte) data.length;
-        } else if (vertices == 4) {
+        }
+        if (element == getVertexFormat().getElementCount() - 1) {
+            vertices++;
+        }
+        if (vertices == 4) {
             vertices = 0;
             processQuad();
         }

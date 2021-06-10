@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.MetadataCollection;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ModContainerFactory;
 import net.minecraftforge.fml.common.discovery.asm.ASMModParser;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -56,8 +57,11 @@ public class DirectoryDiscoverer implements ITypeDiscoverer {
             File metadata = new File(modDir, "mcmod.info");
             try {
                 FileInputStream fis = new FileInputStream(metadata);
-                mc = MetadataCollection.from(fis, modDir.getName());
-                fis.close();
+                try {
+                    mc = MetadataCollection.from(fis, modDir.getName());
+                } finally {
+                    IOUtils.closeQuietly(fis);
+                }
                 FMLLog.fine("Found an mcmod.info file in directory %s", modDir.getName());
             } catch (Exception e) {
                 mc = MetadataCollection.from(null, "");
@@ -79,16 +83,14 @@ public class DirectoryDiscoverer implements ITypeDiscoverer {
 
             if (match.matches()) {
                 ASMModParser modParser = null;
-                try {
-                    FileInputStream fis = new FileInputStream(file);
+                try (FileInputStream fis = new FileInputStream(file)) {
                     modParser = new ASMModParser(fis);
-                    fis.close();
                     candidate.addClassEntry(path + file.getName());
                 } catch (LoaderException e) {
                     FMLLog.log(Level.ERROR, e, "There was a problem reading the file %s - probably this is a corrupt file", file.getPath());
                     throw e;
                 } catch (Exception e) {
-                    Throwables.propagate(e);
+                    throw Throwables.propagate(e);
                 }
 
                 modParser.validate();

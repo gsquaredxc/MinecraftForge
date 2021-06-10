@@ -72,6 +72,7 @@ import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 import net.minecraftforge.fml.common.registry.PersistentRegistryManager;
 import net.minecraftforge.fml.common.toposort.ModSortingException;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,6 +83,7 @@ import org.lwjgl.opengl.Display;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,9 +223,14 @@ public class FMLClientHandler implements IFMLSidedHandler {
             Class<?> optifineConfig = Class.forName("Config", false, Loader.instance().getModClassLoader());
             String optifineVersion = (String) optifineConfig.getField("VERSION").get(null);
             Map<String, Object> dummyOptifineMeta = ImmutableMap.<String, Object>builder().put("name", "Optifine").put("version", optifineVersion).build();
-            ModMetadata optifineMetadata = MetadataCollection.from(getClass().getResourceAsStream("optifinemod.info"), "optifine").getMetadataForId("optifine", dummyOptifineMeta);
-            optifineContainer = new DummyModContainer(optifineMetadata);
-            FMLLog.info("Forge Mod Loader has detected optifine %s, enabling compatibility features", optifineContainer.getVersion());
+            InputStream optifineModInfoInputStream = getClass().getResourceAsStream("optifinemod.info");
+            try {
+                ModMetadata optifineMetadata = MetadataCollection.from(optifineModInfoInputStream, "optifine").getMetadataForId("optifine", dummyOptifineMeta);
+                optifineContainer = new DummyModContainer(optifineMetadata);
+                FMLLog.info("Forge Mod Loader has detected optifine %s, enabling compatibility features", optifineContainer.getVersion());
+            } finally {
+                IOUtils.closeQuietly(optifineModInfoInputStream);
+            }
         } catch (Exception e) {
             optifineContainer = null;
         }
@@ -236,12 +243,16 @@ public class FMLClientHandler implements IFMLSidedHandler {
         throw Throwables.propagate(t);
     }
 
+    public boolean hasError() {
+        return modsMissing != null || wrongMC != null || customError != null || dupesFound != null || modSorting != null;
+    }
+
     /**
      * Called a bit later on during initialization to finish loading mods
      * Also initializes key bindings
      */
     public void finishMinecraftLoading() {
-        if (modsMissing != null || wrongMC != null || customError != null || dupesFound != null || modSorting != null) {
+        if (hasError()) {
             SplashProgress.finish();
             return;
         }
@@ -436,6 +447,11 @@ public class FMLClientHandler implements IFMLSidedHandler {
      */
     public boolean isLoading() {
         return loading;
+    }
+
+    @Override
+    public boolean isDisplayCloseRequested() {
+        return Display.isCreated() && Display.isCloseRequested();
     }
 
     @Override

@@ -155,3 +155,17 @@ fml.menu.mods.search=Search:
 fml.menu.modoptions=Mod Options...
 
 item.forge.bucketFilled.name=%s Bucket
+
+fml.messages.mod.missing.dependencies=%s is missing mods it depends on.
+fml.messages.mod.missing.dependencies.fix=Include the following mods or remove %s.
+fml.messages.mod.missing.dependencies.see.log=See '%s' for technical information.
+fml.messages.version.restriction.any=any
+fml.messages.version.restriction.lower.inclusive=%s or above
+fml.messages.version.restriction.lower.exclusive=above %s
+fml.messages.version.restriction.upper.inclusive=%s or below
+fml.messages.version.restriction.upper.exclusive=below %s
+fml.messages.version.restriction.bounded=between %s and %s
+
+fml.button.continue=Continue
+fml.button.open.mods.folder=Open Mods Folder
+fml.button.open.file=Open %s

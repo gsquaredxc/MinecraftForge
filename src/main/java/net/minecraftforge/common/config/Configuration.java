@@ -11,6 +11,7 @@ import net.minecraftforge.fml.client.config.GuiConfigEntries.IConfigEntry;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -914,18 +915,8 @@ public class Configuration {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (buffer != null) {
-                try {
-                    buffer.close();
-                } catch (IOException ignored) {
-                }
-            }
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException ignored) {
-                }
-            }
+            IOUtils.closeQuietly(buffer);
+            IOUtils.closeQuietly(input);
         }
 
         resetChangedState();
@@ -1224,9 +1215,11 @@ public class Configuration {
      */
     public boolean renameProperty(String category, String oldPropName, String newPropName) {
         if (hasCategory(category)) {
-            if (getCategory(category).containsKey(oldPropName) && !oldPropName.equalsIgnoreCase(newPropName)) {
-                get(category, newPropName, getCategory(category).get(oldPropName).getString(), "");
-                getCategory(category).remove(oldPropName);
+            ConfigCategory cat = getCategory(category);
+            if (cat.containsKey(oldPropName) && !oldPropName.equalsIgnoreCase(newPropName)) {
+                Property prop = cat.remove(oldPropName);
+                prop.setName(newPropName);
+                cat.put(newPropName, prop);
                 return true;
             }
         }

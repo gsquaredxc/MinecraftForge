@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import net.minecraft.launchwrapper.IClassTransformer;
+import org.apache.commons.io.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -204,19 +205,8 @@ public class MarkerTransformer implements IClassTransformer {
                 outJar.write(entryData);
             }
         } finally {
-            if (outJar != null) {
-                try {
-                    outJar.close();
-                } catch (IOException ignored) {
-                }
-            }
-
-            if (inJar != null) {
-                try {
-                    inJar.close();
-                } catch (IOException ignored) {
-                }
-            }
+            IOUtils.closeQuietly(outJar);
+            IOUtils.closeQuietly(inJar);
         }
     }
 }
