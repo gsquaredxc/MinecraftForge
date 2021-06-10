@@ -25,7 +25,18 @@
          IBlockState iblockstate = this.func_177485_a(p_177484_1_, p_177484_2_, p_177484_3_);
          Block block = iblockstate.func_177230_c();
          Block block1 = p_177484_4_.func_177230_c();
-@@ -141,9 +146,25 @@
+@@ -57,7 +62,9 @@
+                 ++this.field_76683_c;
+             }
+         }
+-
++        if (Block.field_176229_d.func_148747_b(p_177484_4_) != 0){
++            allocateIfNot();
++        }
+         this.field_177488_d[p_177484_2_ << 8 | p_177484_3_ << 4 | p_177484_1_] = (char)Block.field_176229_d.func_148747_b(p_177484_4_);
+     }
+ 
+@@ -141,9 +148,25 @@
  
      public void func_177486_a(char[] p_177486_1_)
      {
