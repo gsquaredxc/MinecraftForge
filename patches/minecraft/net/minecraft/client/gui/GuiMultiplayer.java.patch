@@ -1,6 +1,29 @@
 --- ../src-base/minecraft/net/minecraft/client/gui/GuiMultiplayer.java
 +++ ../src-work/minecraft/net/minecraft/client/gui/GuiMultiplayer.java
-@@ -40,6 +40,7 @@
+@@ -12,6 +12,7 @@
+ import net.minecraft.client.resources.I18n;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import net.minecraftforge.utils.JavaUtils;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ import org.lwjgl.input.Keyboard;
+@@ -37,9 +38,22 @@
+     private LanServerDetector.ThreadLanServerFind field_146800_B;
+     private boolean field_146801_C;
+ 
++    private final Object threadLock = new Object();
++
++    private int field_92024_r;
++    private int field_92023_s;
++    private int field_92022_t;
++    private int field_92021_u;
++    private int field_92020_v;
++    private int field_92019_w;
++
++    private String java16Warning;
++    private String java16Warning2;
++
      public GuiMultiplayer(GuiScreen p_i1040_1_)
      {
          this.field_146798_g = p_i1040_1_;
@@ -8,7 +31,59 @@
      }
  
      public void func_73866_w_()
-@@ -372,7 +373,7 @@
+@@ -72,7 +86,22 @@
+             this.field_146803_h.func_148122_a(this.field_146294_l, this.field_146295_m, 32, this.field_146295_m - 64);
+         }
+ 
++        if (JavaUtils.INSTANCE.isJava16()) {
++            this.java16Warning = "You will not be able to join servers via non-direct IPs.";
++            this.java16Warning2 = "This is due to a Netty issue that may be fixed in a later release";
++        }
++
+         this.func_146794_g();
++
++        synchronized (this.threadLock) {
++            this.field_92023_s = this.field_146289_q.func_78256_a(this.java16Warning);
++            this.field_92024_r = this.field_146289_q.func_78256_a(this.java16Warning2);
++            int k = Math.max(this.field_92023_s, this.field_92024_r);
++            this.field_92022_t = (this.field_146294_l - k) / 2;
++            this.field_92021_u = 4;
++            this.field_92020_v = this.field_92022_t + k;
++            this.field_92019_w = this.field_92021_u + 24;
++        }
+     }
+ 
+     public void func_146274_d() throws IOException
+@@ -343,16 +372,27 @@
+ 
+     public void func_73863_a(int p_73863_1_, int p_73863_2_, float p_73863_3_)
+     {
++        ScaledResolution res = new ScaledResolution(field_146297_k);
++
+         this.field_146812_y = null;
+         this.func_146276_q_();
+         this.field_146803_h.func_148128_a(p_73863_1_, p_73863_2_, p_73863_3_);
+-        this.func_73732_a(this.field_146289_q, I18n.func_135052_a("multiplayer.title", new Object[0]), this.field_146294_l / 2, 20, 16777215);
++        if (!JavaUtils.INSTANCE.isJava16() || res.func_78326_a() >= 852 && res.func_78328_b() >= 480) {
++            this.func_73732_a(this.field_146289_q, I18n.func_135052_a("multiplayer.title", new Object[0]), this.field_146294_l / 2, 20, 16777215);
++        }
+         super.func_73863_a(p_73863_1_, p_73863_2_, p_73863_3_);
+ 
+         if (this.field_146812_y != null)
+         {
+             this.func_146283_a(Lists.newArrayList(Splitter.on("\n").split(this.field_146812_y)), p_73863_1_, p_73863_2_);
+         }
++        if (res.func_78326_a() >= 852 && res.func_78328_b() >= 480) {
++            if (this.java16Warning != null && this.java16Warning.length() > 0) {
++                func_73734_a(this.field_92022_t - 2, this.field_92021_u - 2, this.field_92020_v + 2, this.field_92019_w - 1, 1428160512);
++                this.func_73732_a(this.field_146289_q, this.java16Warning, this.field_146294_l / 2, this.field_92021_u, -1);
++                this.func_73732_a(this.field_146289_q, this.java16Warning2, this.field_146294_l / 2, this.field_92021_u * 4, -1);
++            }
++        }
+     }
+ 
+     public void func_146796_h()
+@@ -372,7 +412,7 @@
  
      private void func_146791_a(ServerData p_146791_1_)
      {

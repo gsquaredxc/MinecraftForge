@@ -238,7 +238,7 @@
       }
     }
   ],
-  "mainClass": "net.minecraft.client.main.Main",
+  "mainClass": "net.minecraftforge.launch.ForgeLaunchWrapper",
   "minimumLauncherVersion": 14,
   "assets": "1.8"
 }

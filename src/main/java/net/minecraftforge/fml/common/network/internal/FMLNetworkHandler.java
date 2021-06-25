@@ -26,11 +26,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLContainer;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler.OutboundTarget;
@@ -42,7 +38,6 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry.EntityRegistration;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.core.helpers.Integers;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -51,8 +46,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class FMLNetworkHandler {
-    public static final int READ_TIMEOUT = Integers.parseInt(System.getProperty("fml.readTimeout", "30"), 30);
-    public static final int LOGIN_TIMEOUT = Integers.parseInt(System.getProperty("fml.loginTimeout", "600"), 600);
+    public static final int READ_TIMEOUT = intOrDefault(System.getProperty("fml.readTimeout", "30"), 30);
+    public static final int LOGIN_TIMEOUT = intOrDefault(System.getProperty("fml.loginTimeout", "600"), 600);
     private static EnumMap<Side, FMLEmbeddedChannel> channelPair;
 
     public static void fmlServerHandshake(ServerConfigurationManager scm, NetworkManager manager, EntityPlayerMP player) {
@@ -177,5 +172,13 @@ public class FMLNetworkHandler {
         }
         fmlData.add("modList", modList);
         jsonobject.add("modinfo", fmlData);
+    }
+
+    public static int intOrDefault(String s, int d) {
+        try {
+            return Integer.parseInt(s);
+        } catch (Throwable throwable) {
+            return d;
+        }
     }
 }

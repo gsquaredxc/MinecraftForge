@@ -14,11 +14,7 @@ package net.minecraftforge.fml.relauncher;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.ObjectArrays;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
@@ -29,32 +25,14 @@ import net.minecraftforge.fml.common.asm.ASMTransformerWrapper;
 import net.minecraftforge.fml.common.asm.transformers.ModAccessTransformer;
 import net.minecraftforge.fml.common.launcher.FMLInjectionAndSortingTweaker;
 import net.minecraftforge.fml.common.launcher.FMLTweaker;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.DependsOn;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.Name;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.*;
+import net.minecraftforge.launch.ForgeLaunchWrapper;
 import org.apache.logging.log4j.Level;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -110,6 +88,7 @@ public class CoreModManager {
 
         @Override
         public void injectIntoClassLoader(LaunchClassLoader classLoader) {
+            classLoader.addClassLoaderExclusion("net.minecraftforge.utils.JavaUtils");
             FMLRelaunchLog.fine("Injecting coremod %s {%s} class transformers", name, coreModInstance.getClass().getName());
             List<String> ts = Lists.newArrayList();
             if (coreModInstance.getASMTransformerClass() != null)
@@ -202,7 +181,7 @@ public class CoreModManager {
         }
 
         if (loadPlugins.isEmpty()) {
-            throw new RuntimeException("A fatal error has occured - no valid fml load plugin was found - this is a completely corrupt FML installation.");
+            throw new RuntimeException("A fatal error has occurred - no valid fml load plugin was found - this is a completely corrupt FML installation.");
         }
 
         FMLRelaunchLog.fine("All fundamental core mods are successfully located");
@@ -380,16 +359,9 @@ public class CoreModManager {
         return result;
     }
 
-    private static Method ADDURL;
-
     private static void handleCascadingTweak(File coreMod, JarFile jar, String cascadedTweaker, LaunchClassLoader classLoader, Integer sortingOrder) {
         try {
-            // Have to manually stuff the tweaker into the parent classloader
-            if (ADDURL == null) {
-                ADDURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-                ADDURL.setAccessible(true);
-            }
-            ADDURL.invoke(classLoader.getClass().getClassLoader(), coreMod.toURI().toURL());
+            ForgeLaunchWrapper.getClassLoader().addURL(coreMod.toURI().toURL());
             classLoader.addURL(coreMod.toURI().toURL());
             CoreModManager.tweaker.injectCascadingTweak(cascadedTweaker);
             tweakSorting.put(cascadedTweaker, sortingOrder);
