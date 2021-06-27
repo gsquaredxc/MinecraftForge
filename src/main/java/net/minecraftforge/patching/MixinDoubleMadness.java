@@ -22,13 +22,11 @@ public class MixinDoubleMadness implements ForgeTransformer {
             reader.accept(classNode, ClassReader.EXPAND_FRAMES);
 
             for (MethodNode methodNode : classNode.methods) {
-                System.out.println(methodNode.name);
                 if (methodNode.name.equals("resolveCurrentVersion")) {
                     InsnList list = methodNode.instructions;
                     ListIterator<AbstractInsnNode> nodeIterator = list.iterator();
                     while (nodeIterator.hasNext()) {
                         AbstractInsnNode insnNode = nodeIterator.next();
-                        System.out.println(insnToString(insnNode));
 
                         if (insnNode instanceof LdcInsnNode && ((LdcInsnNode) insnNode).cst instanceof String) {
                             if (((String)((LdcInsnNode) insnNode).cst).equals("[0-9]+\\.[0-9]+")) {
@@ -37,11 +35,6 @@ public class MixinDoubleMadness implements ForgeTransformer {
                                 break;
                             }
                         }
-                        System.out.println(insnToString(insnNode));
-                    }
-                    System.out.println(list.size());
-                    for(int i = 0; i< list.size(); i++){
-                        System.out.print(insnToString(list.get(i)));
                     }
                 }
             }
@@ -54,15 +47,4 @@ public class MixinDoubleMadness implements ForgeTransformer {
 
         return bytes;
     }
-
-    public static String insnToString(AbstractInsnNode insn){
-        insn.accept(mp);
-        StringWriter sw = new StringWriter();
-        printer.print(new PrintWriter(sw));
-        printer.getText().clear();
-        return sw.toString();
-    }
-
-    private static Printer printer = new Textifier();
-    private static TraceMethodVisitor mp = new TraceMethodVisitor(printer);
 }

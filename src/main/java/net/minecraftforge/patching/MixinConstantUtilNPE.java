@@ -22,17 +22,11 @@ public class MixinConstantUtilNPE implements ForgeTransformer {
             reader.accept(classNode, ClassReader.EXPAND_FRAMES);
 
             for (MethodNode methodNode : classNode.methods) {
-                System.out.println(methodNode.name);
                 if (methodNode.name.equals("<clinit>")) {
-                    System.out.println("we made it1");
                     InsnList list = methodNode.instructions;
-                    System.out.println("we made it2");
                     ListIterator<AbstractInsnNode> nodeIterator = list.iterator();
-                    System.out.println("we made it3");
-                    System.out.println(list.size());
                     while (nodeIterator.hasNext()) {
                         AbstractInsnNode insnNode = nodeIterator.next();
-                        System.out.println(insnToString(insnNode));
 
                         if (insnNode instanceof LdcInsnNode && ((LdcInsnNode) insnNode).cst instanceof Type) {
                             if (((Type)((LdcInsnNode) insnNode).cst).getInternalName().equals("org/spongepowered/asm/mixin/Mixin")) {
@@ -45,11 +39,6 @@ public class MixinConstantUtilNPE implements ForgeTransformer {
                                 break;
                             }
                         }
-                        System.out.println(insnToString(insnNode));
-                    }
-                    System.out.println(list.size());
-                    for(int i = 0; i< list.size(); i++){
-                        System.out.print(insnToString(list.get(i)));
                     }
                 }
             }
@@ -62,15 +51,4 @@ public class MixinConstantUtilNPE implements ForgeTransformer {
 
         return bytes;
     }
-
-    public static String insnToString(AbstractInsnNode insn){
-        insn.accept(mp);
-        StringWriter sw = new StringWriter();
-        printer.print(new PrintWriter(sw));
-        printer.getText().clear();
-        return sw.toString();
-    }
-
-    private static Printer printer = new Textifier();
-    private static TraceMethodVisitor mp = new TraceMethodVisitor(printer);
 }
