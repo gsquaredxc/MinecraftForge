@@ -195,9 +195,11 @@ public class ForgeLaunchWrapperClassLoader extends URLClassLoader {
         Class<?> invokeDynamicTransformer = Class.forName("net.minecraftforge.patching.InvokeDynamicTransformer", true, this);
         Class<?> classReaderTransformer = Class.forName("net.minecraftforge.patching.ClassReaderTransformer", true, this);
         Class<?> mixinConstantTransformer = Class.forName("net.minecraftforge.patching.MixinConstantUtilNPE", true, this);
+        Class<?> mixinDoubleTransformer = Class.forName("net.minecraftforge.patching.MixinDoubleMadness", true, this);
         addTransformer((ForgeTransformer) mixinServiceLaunchWrapperTransformer.newInstance());
         addTransformer((ForgeTransformer) invokeDynamicTransformer.newInstance());
         addTransformer((ForgeTransformer) classReaderTransformer.newInstance());
         addTransformer((ForgeTransformer) mixinConstantTransformer.newInstance());
+        addTransformer((ForgeTransformer) mixinDoubleTransformer.newInstance());
     }
 }
