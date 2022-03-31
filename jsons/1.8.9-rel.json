@@ -109,6 +109,24 @@
       "serverreq":true
     },
     {
+      "name": "io.netty:netty-all:4.0.23.Final",
+      "url": "https://repo1.maven.org/maven2",
+      "clientreq":true,
+      "serverreq":true
+    },
+    {
+      "name": "org.apache.logging.log4j:log4j-core:2.17.2",
+      "url": "https://repo1.maven.org/maven2",
+      "clientreq":true,
+      "serverreq":true
+    },
+    {
+      "name": "org.apache.logging.log4j:log4j-api:2.17.2",
+      "url": "https://repo1.maven.org/maven2",
+      "clientreq":true,
+      "serverreq":true
+    },
+    {
       "name": "it.unimi.dsi:fastutil:8.5.4",
       "url": "https://repo.maven.apache.org/maven2",
       "clientreq":true,
@@ -122,6 +140,12 @@
     },
     {
       "name": "it.unimi.dsi:fastutil-extra:8.5.4",
+      "url": "https://repo.maven.apache.org/maven2",
+      "clientreq":true,
+      "serverreq":true
+    },
+    {
+      "name": "com.google.guava:guava:20.0",
       "url": "https://repo.maven.apache.org/maven2",
       "clientreq":true,
       "serverreq":true

@@ -23,7 +23,7 @@ import java.io.Writer;
 
 import static jline.TerminalFactory.OFF;
 import static jline.console.ConsoleReader.RESET_LINE;
-import static org.apache.logging.log4j.core.helpers.Booleans.parseBoolean;
+import static org.apache.logging.log4j.core.util.Booleans.parseBoolean;
 
 @Plugin(name = "TerminalConsole", category = "Core", elementType = "appender", printObject = true)
 public class TerminalConsoleAppender extends AbstractAppender {
@@ -58,7 +58,7 @@ public class TerminalConsoleAppender extends AbstractAppender {
             return null;
         }
         if (layout == null) {
-            layout = PatternLayout.createLayout(null, null, null, null, null);
+            layout = PatternLayout.createLayout(null, null, null, null, null, false, false, null, null);
         }
 
         boolean ignoreExceptions = parseBoolean(ignore, true);

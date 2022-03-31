@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.helpers.Integers;
+import org.apache.logging.log4j.core.util.Integers;
 
 import java.io.IOException;
 import java.util.List;

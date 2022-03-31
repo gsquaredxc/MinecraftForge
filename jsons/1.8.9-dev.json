@@ -114,6 +114,18 @@
       "name": "net.sf.trove4j:trove4j:3.0.3"
     },
     {
+      "name": "io.netty:netty-all:4.0.23.Final",
+      "url": "https://repo1.maven.org/maven2"
+    },
+    {
+      "name": "org.apache.logging.log4j:log4j-core:2.17.2",
+      "url": "https://repo1.maven.org/maven2"
+    },
+    {
+      "name": "com.google.guava:guava:20.0",
+      "url": "https://repo.maven.apache.org/maven2"
+    },
+    {
       "name": "it.unimi.dsi:fastutil:8.5.4",
       "url": "https://repo.maven.apache.org/maven2"
     },
